@@ -2,60 +2,29 @@ local rankings = ctf_rankings.init()
 local recent_rankings = ctf_modebase.recent_rankings(rankings)
 local features = ctf_modebase.features(rankings, recent_rankings)
 
-local tool = ctf_core.include_files("tool.lua")
-
 local old_bounty_reward_func = ctf_modebase.bounties.bounty_reward_func
 local old_get_next_bounty = ctf_modebase.bounties.get_next_bounty
 ctf_modebase.register_mode("nade_fight", {
-	hp_regen = 2,
 	treasures = {
 		["default:ladder_wood" ] = {                max_count = 20, rarity = 0.3, max_stacks = 5},
 		["default:torch"       ] = {                max_count = 20, rarity = 0.3, max_stacks = 5},
 		["default:cobble"      ] = {min_count = 45, max_count = 99, rarity = 0.4, max_stacks = 5},
 		["default:wood"        ] = {min_count = 10, max_count = 60, rarity = 0.5, max_stacks = 4},
 
-		["ctf_teams:door_steel"] = {rarity = 0.2, max_stacks = 3},
-
-		["default:pick_mese"  ] = {rarity = 0.4, max_stacks = 3},
-		["default:shovel_mese"] = {rarity = 0.4, max_stacks = 2},
-		["default:axe_mese"   ] = {rarity = 0.4, max_stacks = 2},
-
-		["default:pick_diamond"  ] = {rarity = 0.05, max_stacks = 3},
-		["default:shovel_diamond"] = {rarity = 0.05, max_stacks = 2},
-		["default:axe_diamond"   ] = {rarity = 0.05, max_stacks = 2},
-
-		["ctf_melee:sword_steel" ] = {rarity = 0.4  , max_stacks = 1},
-		["ctf_melee:sword_mese"  ] = {rarity = 0.05 , max_stacks = 1},
+		["ctf_teams:door_steel"] = {rarity = 0.4, max_stacks = 3},
 
 		["ctf_ranged:pistol_loaded" ] = {rarity = 0.2 , max_stacks = 2},
-		["ctf_ranged:rifle_loaded"  ] = {rarity = 0.2                 },
 		["ctf_ranged:shotgun_loaded"] = {rarity = 0.05                },
 		["ctf_ranged:smg_loaded"    ] = {rarity = 0.05                },
 
-		["ctf_map:unwalkable_dirt"  ] = {min_count = 5, max_count = 26, max_stacks = 1, rarity = 0.1},
-		["ctf_map:unwalkable_stone" ] = {min_count = 5, max_count = 26, max_stacks = 1, rarity = 0.1},
-		["ctf_map:unwalkable_cobble"] = {min_count = 5, max_count = 26, max_stacks = 1, rarity = 0.1},
-		["ctf_map:spike"            ] = {min_count = 1, max_count =  5, max_stacks = 3, rarity = 0.2},
-		["ctf_map:damage_cobble"    ] = {min_count = 5, max_count = 20, max_stacks = 2, rarity = 0.2},
-		["ctf_map:reinforced_cobble"] = {min_count = 5, max_count = 25, max_stacks = 2, rarity = 0.2},
+		["ctf_ranged:ammo" ] = {min_count = 3, max_count = 10, rarity = 0.3 , max_stacks = 2},
 
-		["ctf_ranged:ammo"     ] = {min_count = 3, max_count = 10, rarity = 0.3  , max_stacks = 2},
-		["ctf_healing:medkit"  ] = {                               rarity = 0.1  , max_stacks = 2},
-		["ctf_healing:bandage" ] = {                               rarity = 0.08 , max_stacks = 2},
-
-		["grenades:smoke"] = {rarity = 0.2, max_stacks = 3},
+		["grenades:frag" ] = {rarity = 0.1, max_stacks = 1},
+		["grenades:smoke"] = {rarity = 0.2, max_stacks = 2},
 	},
-	crafts = {
-		"ctf_map:damage_cobble",
-		"ctf_map:spike",
-		"ctf_map:reinforced_cobble 2",
-	},
+	crafts = {"ctf_ranged:ammo", "ctf_melee:sword_steel", "ctf_melee:sword_mese", "ctf_melee:sword_diamond"},
 	physics = {sneak_glitch = true, new_move = false},
-	blacklisted_nodes = {"default:apple"},
-	team_chest_items = {
-		"ctf_ranged:ammo", "default:axe_mese", "default:axe_diamond", "default:shovel_mese", "default:shovel_diamond",
-		"ctf_map:damage_cobble", "ctf_map:spike", "ctf_map:reinforced_cobble 2",
-	},
+	team_chest_items = {"default:cobble 99", "default:wood 99", "default:torch 30", "ctf_teams:door_steel 2"},
 	rankings = rankings,
 	recent_rankings = recent_rankings,
 	summary_ranks = {
@@ -66,20 +35,9 @@ ctf_modebase.register_mode("nade_fight", {
 		"deaths",
 		"hp_healed"
 	},
-	build_timer = 60 * 2,
 
-	is_bound_item = function(_, name)
-		if name:match("ctf_mode_nade_fight:") then
-			return true
-		end
-	end,
-	stuff_provider = function(player)
-		return {
-			tool.get_grenade_tool(player),
-			"default:pick_steel",
-			"default:shovel_steel",
-			"default:axe_steel"
-		}
+	stuff_provider = function()
+		return {"ctf_ranged:rifle_loaded", "default:pick_stone", "ctf_ranged:sniper_loaded", "ctf_ranged:ammo", "default:torch 99"}
 	end,
 	on_mode_start = function()
 		ctf_modebase.bounties.bounty_reward_func = ctf_modebase.bounty_algo.kd.bounty_reward_func
@@ -102,18 +60,7 @@ ctf_modebase.register_mode("nade_fight", {
 	on_flag_capture = features.on_flag_capture,
 	on_flag_rightclick = function() end,
 	get_chest_access = features.get_chest_access,
-	can_punchplayer = features.can_punchplayer,
-	on_punchplayer = function(player, hitter, damage, unneeded, tool_capabilities, ...)
-		if tool.holed[player:get_player_name()] then
-			if tool_capabilities.grenade then
-				damage = damage * 2
-			else
-				damage = math.round(damage * 1.3)
-			end
-		end
-
-		return features.on_punchplayer(player, hitter, damage, unneeded, tool_capabilities, ...)
-	end,
+	on_punchplayer = features.on_punchplayer,
 	on_healplayer = features.on_healplayer,
 	calculate_knockback = function()
 		return 0
