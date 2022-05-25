@@ -297,6 +297,7 @@ ctf_ranged.simple_register_gun("ctf_ranged:sniper", {
 	rounds = 25,
 	range = 300,
 	damage = 12,
+	fire_sound = ctf_ranged_sniper,
 	fire_interval = 2,
 	liquid_travel_dist = 10,
 	rightclick_func = function(itemstack, user, pointed, ...)
@@ -317,6 +318,7 @@ ctf_ranged.simple_register_gun("ctf_ranged:sniper_magnum", {
 	rounds = 20,
 	range = 400,
 	damage = 16,
+	fire_sound = ctf_ranged_sniper,
 	fire_interval = 2,
 	liquid_travel_dist = 15,
 	rightclick_func = function(itemstack, user, pointed, ...)
